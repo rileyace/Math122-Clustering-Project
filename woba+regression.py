@@ -380,6 +380,7 @@ plt.show()
 
 # ============================================================
 # 14. Actual vs predicted plot
+#     Full-sample Ridge vs wOBA-cluster Ridge
 # ============================================================
 
 prediction_df = test_df[["Year", "Name", "cluster", "wOBA", "wOBA_next"]].copy()
@@ -393,22 +394,11 @@ print("\nPrediction sample:")
 print(prediction_df.head(15))
 
 
-plt.figure(figsize=(6, 6))
+# Calculate MSE for the two ridge models
+mse_full = mean_squared_error(y_test, baseline_pred)
+mse_cluster = mean_squared_error(y_test, cluster_predictions)
 
-plt.scatter(
-    y_test,
-    baseline_pred,
-    label="Full Ridge",
-    alpha=0.7
-)
-
-plt.scatter(
-    y_test,
-    cluster_predictions,
-    label="wOBA-cluster Ridge",
-    alpha=0.7
-)
-
+# Common axis range for both plots
 min_val = min(
     y_test.min(),
     baseline_pred.min(),
@@ -421,16 +411,73 @@ max_val = max(
     cluster_predictions.max()
 )
 
-plt.plot(
-    [min_val, max_val],
-    [min_val, max_val],
-    linestyle="--"
+padding = 0.03 * (max_val - min_val)
+axis_min = min_val - padding
+axis_max = max_val + padding
+
+
+# Create two horizontal plots
+fig, axes = plt.subplots(1, 2, figsize=(13, 5), sharex=True, sharey=True)
+
+
+# ------------------------------------------------------------
+# Plot 1: Full-sample Ridge
+# ------------------------------------------------------------
+
+axes[0].scatter(
+    y_test,
+    baseline_pred,
+    alpha=0.7
 )
 
-plt.xlabel("Actual next-season wOBA")
-plt.ylabel("Predicted next-season wOBA")
-plt.title("Actual vs Predicted next-season wOBA")
-plt.legend()
+axes[0].plot(
+    [axis_min, axis_max],
+    [axis_min, axis_max],
+    linestyle="--",
+    color="red",
+    label="Perfect fit"
+)
+
+axes[0].set_title(f"Full-sample Ridge\nMSE = {mse_full:.6f}")
+axes[0].set_xlabel("Actual next-season wOBA")
+axes[0].set_ylabel("Predicted next-season wOBA")
+axes[0].legend()
+
+
+# ------------------------------------------------------------
+# Plot 2: wOBA-cluster Ridge
+# ------------------------------------------------------------
+
+axes[1].scatter(
+    y_test,
+    cluster_predictions,
+    alpha=0.7
+)
+
+axes[1].plot(
+    [axis_min, axis_max],
+    [axis_min, axis_max],
+    linestyle="--",
+    color="red",
+    label="Perfect fit"
+)
+
+axes[1].set_title(f"wOBA-cluster Ridge\nMSE = {mse_cluster:.6f}")
+axes[1].set_xlabel("Actual next-season wOBA")
+axes[1].legend()
+
+
+# ------------------------------------------------------------
+# Final formatting
+# ------------------------------------------------------------
+
+for ax in axes:
+    ax.set_xlim(axis_min, axis_max)
+    ax.set_ylim(axis_min, axis_max)
+    ax.grid(alpha=0.25)
+
+plt.suptitle("Actual vs Predicted Next-Season wOBA", fontsize=14)
+plt.tight_layout()
 
 plt.show()
 
