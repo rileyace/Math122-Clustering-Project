@@ -63,3 +63,7 @@ for cluster_id in range(3):
 
 clustered_mse = mean_squared_error(y_test, y_test_pred)
 print(f"Clustered Ridge Mean Squared Error: {clustered_mse:.4f}")
+
+# output:
+# Mean Squared Error: 22.7258
+# Clustered Ridge Mean Squared Error: 14.5734
