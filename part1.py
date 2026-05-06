@@ -4,7 +4,7 @@ from skimage.metrics import mean_squared_error
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 
 (x_train, y_train), (x_test, y_test) = boston_housing.load_data()
@@ -23,7 +23,6 @@ print(f"Mean Squared Error: {mse:.4f}")
 
 #-------------------- part ii ------------------------------
 
-# Scales the data before fitting to model --> we can discuss if we need this
 scaler = StandardScaler()
 x_train_scaled = scaler.fit_transform(x_train)
 
@@ -43,3 +42,29 @@ plt.title("KMeans Clusters (First Two Features)")
 plt.show()
 
 #-------------------- part iii -----------------------------
+x_test_scaled = scaler.transform(x_test)
+
+test_clusters = kmeans.predict(x_test_scaled)
+
+models = []
+
+y_test_pred = np.zeros_like(y_test)
+
+for cluster_id in range(3):
+
+    train_mask = clusters == cluster_id
+    x_cluster = x_train[train_mask]
+    y_cluster = y_train[train_mask]
+
+    ridge_model = Ridge(alpha=0.5)
+    ridge_model.fit(x_cluster, y_cluster)
+    models.append(ridge_model)
+
+    test_mask = test_clusters == cluster_id
+
+    x_test_cluster = x_test[test_mask]
+
+    y_test_pred[test_mask] = ridge_model.predict(x_test_cluster)
+
+clustered_mse = mean_squared_error(y_test, y_test_pred)
+print(f"Clustered Ridge Mean Squared Error: {clustered_mse:.4f}")
