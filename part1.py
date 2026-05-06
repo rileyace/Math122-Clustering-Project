@@ -2,7 +2,6 @@ from sklearn.cluster import KMeans
 from tensorflow.keras.datasets import boston_housing
 from skimage.metrics import mean_squared_error
 from sklearn.linear_model import Ridge
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -23,15 +22,13 @@ print(f"Mean Squared Error: {mse:.4f}")
 
 #-------------------- part ii ------------------------------
 
-scaler = StandardScaler()
-x_train_scaled = scaler.fit_transform(x_train)
-
 kmeans = KMeans(n_clusters=3)
-kmeans.fit(x_train_scaled)
-clusters = kmeans.predict(x_train_scaled)
+kmeans.fit(x_train)
+clusters = kmeans.predict(x_train)
+
 
 plt.figure()
-plt.scatter(x_train_scaled[:, 0], x_train_scaled[:, 1], c=clusters)
+plt.scatter(x_train[:, 0], x_train[:, 1], c=clusters)
 centroids = kmeans.cluster_centers_
 plt.scatter(centroids[:, 0], centroids[:, 1], marker='x')
 
@@ -42,9 +39,7 @@ plt.title("KMeans Clusters (First Two Features)")
 plt.show()
 
 #-------------------- part iii -----------------------------
-x_test_scaled = scaler.transform(x_test)
-
-test_clusters = kmeans.predict(x_test_scaled)
+test_clusters = kmeans.predict(x_test)
 
 models = []
 
